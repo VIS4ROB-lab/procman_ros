@@ -1,0 +1,70 @@
+group "0.Utils"{
+
+    cmd "docker"{
+        exec = "docker_ros2_jetson";
+        host = "eagleeye";
+    }
+
+    cmd "shut down"{
+        exec = "sudo shutdown -h";
+        host = "eagleeye";
+    }
+
+    cmd "reboot"{
+        exec = "sudo reboot -h";
+        host = "eagleeye";
+    }
+
+    cmd "got to bags directory"{
+        exec = "cd code/ros2/bag_files";
+        host = "eagleeye";
+    }
+}
+
+group "1.ROS Utils"{
+    cmd "ros2 topic list"{
+        exec = "ros2 topic list";
+        host = "eagleeye";
+    }
+
+
+    cmd "ros2 bag record"{
+        exec = "ros2 bag record -o /home/v4rl/code/ros2/bag_files/dataset /livox/lidar /livox/imu";
+        host = "eagleeye";
+    }
+}
+
+group "2.Livox" {
+    cmd "rviz" {
+        exec = "ros2 launch livox_ros_driver2 rviz_MID360_launch.py";
+        host = "eagleeye";
+    }
+
+    cmd "msg" {
+        exec = "ros2 launch livox_ros_driver2 msg_MID360_launch.py";
+        host = "eagleeye";
+    }
+
+}
+
+group "3.fast_lio"{
+    cmd "fast_lio"{
+        exec = "ros2 launch fast_lio mapping.launch.py config_file:=mid360.yaml";
+        host = "eagleeye";
+    }
+}
+
+group "4.rerun"{
+    cmd "node"{
+        exec = "python3 code/nonros/rerunCustom/ros2_node/main.py --headless --serve";
+        host = "eagleeye";
+    }
+}
+
+script "FAST_LIO_INIT"{
+    wait ms 5000;
+    start cmd "msg";
+    start cmd "fast_lio";
+    wait ms 3000;
+    wait ms 12000;
+}
